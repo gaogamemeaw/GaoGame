@@ -83,8 +83,11 @@
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
         </button>
         <button id="view-table-btn" onclick="setViewMode('table')" title="มุมมองตาราง" aria-label="มุมมองตาราง" class="p-3 rounded-xl transition-all">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M3 6h18a0 0 0 010 0v12a0 0 0 010 0H3V6zm6 0v12"></path></svg>
-        </button>
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+    <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+    <path d="M3 10h18M3 15h18M9 10v10"></path>
+  </svg>
+</button>
       </div>
     </div>
 
@@ -433,7 +436,6 @@
 
       let html = '';
       games.forEach((game) => {
-        if (viewMode === 'list') { html += renderListRow(game); return; }
         let img = game.img_url ? game.img_url : FALLBACK_IMG;
         let engName = game.gname_eng && game.gname_eng !== 'undefined' ? game.gname_eng : 'Board Game';
         let thName = game.gname_th && game.gname_th !== 'undefined' ? game.gname_th : '';
