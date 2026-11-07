@@ -78,6 +78,14 @@
           <option value="">🏷️ ทุกประเภทเกม</option>
         </select>
       </div>
+            <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-2xl shrink-0" role="group" aria-label="เปลี่ยนมุมมองรายการเกม">
+        <button id="view-card-btn" onclick="setViewMode('card')" title="มุมมองการ์ด" aria-label="มุมมองการ์ด" class="p-3 rounded-xl transition-all">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+        </button>
+        <button id="view-list-btn" onclick="setViewMode('list')" title="มุมมองรายการ" aria-label="มุมมองรายการ" class="p-3 rounded-xl transition-all">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+      </div>
     </div>
 
     <!-- Game grid -->
@@ -243,7 +251,67 @@
       'bg-pink-100 text-pink-800 border-pink-300'
     ];
     let colorIndex = 0;
+    
+    // ====== มุมมองรายการเกม (card / list) ======
+    let viewMode = 'card';
+    try { viewMode = localStorage.getItem('gaoViewMode') === 'list' ? 'list' : 'card'; } catch (e) {}
 
+    function updateViewToggle() {
+      const on = 'bg-white text-brand-600 shadow-sm';
+      const off = 'text-slate-400 hover:text-slate-700';
+      [['card', 'view-card-btn'], ['list', 'view-list-btn']].forEach(function (pair) {
+        const b = document.getElementById(pair[1]);
+        b.className = 'p-3 rounded-xl transition-all ' + (viewMode === pair[0] ? on : off);
+        b.setAttribute('aria-pressed', viewMode === pair[0]);
+      });
+    }
+
+    function setViewMode(mode) {
+      viewMode = mode;
+      try { localStorage.setItem('gaoViewMode', mode); } catch (e) {}
+      updateViewToggle();
+      filterGames(); // วาดใหม่ตามคำค้น/หมวดที่เลือกอยู่
+    }
+
+    function renderListRow(game) {
+      const img = game.img_url || FALLBACK_IMG;
+      const engName = game.gname_eng && game.gname_eng !== 'undefined' ? game.gname_eng : 'Board Game';
+      const thName = game.gname_th && game.gname_th !== 'undefined' ? game.gname_th : '';
+      const categoryName = game.category || 'ทั่วไป';
+      const categoryStyle = getCategoryColor(categoryName);
+      const encodedName = encodeURIComponent(engName);
+      const openDetail = `toggleGameDetailModal(true, '${encodedName}')`;
+
+      const actionBtn = game.isAvailable
+        ? `<button onclick="addByNameToCart('${encodedName}')" class="px-3 sm:px-5 py-3 bg-slate-900 hover:bg-brand-600 active:scale-95 text-white text-sm sm:text-base font-bold rounded-2xl transition-all flex items-center gap-2 shadow-lg shadow-slate-900/15">
+             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+             <span class="hidden sm:inline">เพิ่มลงตะกร้า</span>
+           </button>`
+        : `<button disabled class="px-3 sm:px-5 py-3 bg-slate-100 text-slate-400 text-sm sm:text-base font-bold rounded-2xl cursor-not-allowed">ไม่ว่าง</button>`;
+
+      return `
+      <div class="bg-white rounded-3xl border border-slate-200/80 p-3 sm:p-4 flex items-center gap-3 sm:gap-5 hover:shadow-lg hover:shadow-slate-200/50 transition-shadow duration-200">
+        <div class="w-24 h-24 sm:w-32 sm:h-32 shrink-0 rounded-2xl overflow-hidden bg-slate-100 cursor-pointer" onclick="${openDetail}">
+          <img src="${img}" alt="${engName}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMG}'">
+        </div>
+        <div class="flex-1 min-w-0 cursor-pointer" onclick="${openDetail}">
+          <h4 class="font-extrabold text-slate-900 text-lg sm:text-2xl leading-snug truncate">${engName}</h4>
+          ${thName ? `<p class="text-sm sm:text-base text-slate-500 font-semibold truncate">${thName}</p>` : ''}
+          <div class="flex flex-wrap items-center gap-2 mt-2">
+            <span class="px-3 py-1 rounded-xl text-xs sm:text-sm font-bold border ${categoryStyle}">🎮 ${categoryName}</span>
+            <span class="text-sm font-bold text-slate-600">👥 ${game.min_player}-${game.max_player} คน</span>
+            <span class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold ${game.isAvailable ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${game.statusText}</span>
+          </div>
+        </div>
+        <div class="shrink-0 flex flex-col items-end gap-2">
+          <div class="text-right whitespace-nowrap">
+            <span class="text-lg sm:text-2xl font-extrabold text-slate-900">฿${game.rental_price}</span>
+            <span class="text-xs sm:text-sm font-medium text-slate-400">/วัน</span>
+          </div>
+          ${actionBtn}
+        </div>
+      </div>`;
+    }
     function getCategoryColor(category) {
       if (!category) return 'bg-slate-100 text-slate-800 border-slate-300';
       if (!categoryColorMap[category]) {
@@ -338,6 +406,10 @@
 
     function renderGames(games) {
       let container = document.getElementById('game-list');
+       container.className = viewMode === 'list'
+        ? 'flex flex-col gap-4'
+        : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+      
       if (!games || games.length === 0) {
         container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-400 text-xl font-bold">ไม่พบบอร์ดเกมที่คุณค้นหา</div>`;
         return;
@@ -345,6 +417,7 @@
 
       let html = '';
       games.forEach((game) => {
+        if (viewMode === 'list') { html += renderListRow(game); return; }
         let img = game.img_url ? game.img_url : FALLBACK_IMG;
         let engName = game.gname_eng && game.gname_eng !== 'undefined' ? game.gname_eng : 'Board Game';
         let thName = game.gname_th && game.gname_th !== 'undefined' ? game.gname_th : '';
@@ -598,6 +671,7 @@
 
     // เริ่มทำงาน: โหลดเกมกับ LIFF พร้อมกัน (เกมโหลดได้แม้ LIFF มีปัญหา)
     window.addEventListener('load', function () {
+      updateViewToggle();
       loadGames();
       initLiff();
     });
