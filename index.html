@@ -51,7 +51,7 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Hero -->
-    <div id="hero-block" class="relative overflow-hidden rounded-3xl bg-sky-100 text-slate-900 p-6 sm:p-10 mb-10 shadow-xl shadow-sky-500/10 border border-sky-200/60 flex flex-col-reverse md:flex-row items-center justify-between gap-8">
+    <div class="relative overflow-hidden rounded-3xl bg-[#D7EBF8] text-slate-900 p-6 sm:p-10 mb-10 shadow-xl shadow-sky-500/10 border border-[#D7EBF8] flex flex-col-reverse md:flex-row items-center justify-between gap-8">
       <div class="absolute -right-10 -bottom-10 w-80 h-80 bg-sky-300/30 rounded-full blur-3xl pointer-events-none"></div>
       <div class="relative z-10 max-w-xl text-center md:text-left">
         <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-sky-500/15 text-sky-800 border border-sky-300/50 mb-4">
@@ -61,7 +61,7 @@
         <p class="text-slate-700 text-base sm:text-lg leading-relaxed font-medium">เลือกเกมที่ต้องการ ใส่ตะกร้า แล้วส่งรายการให้แอดมินตรวจสอบและอนุมัติได้อย่างง่ายดาย</p>
       </div>
       <div class="relative z-10 shrink-0">
-        <img id="hero-logo" crossorigin="anonymous" src="https://lh3.googleusercontent.com/d/1uSSiskLIF6L85dNydw7cd7wTkWFE1g0c" alt="Logo เก๋าเกม" class="w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-md transition-transform duration-300 hover:scale-105" onerror="this.style.display='none'">
+        <img src="https://lh3.googleusercontent.com/d/1uSSiskLIF6L85dNydw7cd7wTkWFE1g0c" alt="Logo เก๋าเกม" class="w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-md transition-transform duration-300 hover:scale-105" onerror="this.style.display='none'">
       </div>
     </div>
 
@@ -687,32 +687,9 @@
       }
     }
 
-        // ====== ปรับสีบล็อก Hero ให้เท่าสีพื้นของโลโก้ ======
-    function matchHeroToLogo() {
-      const img = document.getElementById('hero-logo');
-      const hero = document.getElementById('hero-block');
-      if (!img || !hero || !img.naturalWidth) return;
-      try {
-        const w = img.naturalWidth, h = img.naturalHeight;
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        const ctx = c.getContext('2d', { willReadFrequently: true });
-        ctx.drawImage(img, 0, 0);
-        const d = ctx.getImageData(2, 2, 1, 1).data; // พิกเซลมุมซ้ายบน
-        if (d[3] < 250) return; // โลโก้พื้นโปร่งใส ไม่ต้องปรับ
-        const color = `rgb(${d[0]}, ${d[1]}, ${d[2]})`;
-        hero.style.backgroundColor = color;
-        hero.style.borderColor = color;
-        hero.style.boxShadow = 'none';
-      } catch (e) {
-        console.warn('อ่านสีโลโก้ไม่ได้:', e);
-      }
-    }
-
     // เริ่มทำงาน: โหลดเกมกับ LIFF พร้อมกัน (เกมโหลดได้แม้ LIFF มีปัญหา)
     window.addEventListener('load', function () {
       updateViewToggle();
-      matchHeroToLogo();
       loadGames();
       initLiff();
     });
